@@ -1,4 +1,6 @@
 #include <boost\shared_ptr.hpp>
+#include <vector>
+
 class Y
 {
 public:
@@ -28,7 +30,7 @@ public:
 
     ~X()
     {
-                if(m_printExecutionPath)
+        if(m_printExecutionPath)
         {
             std::cout << "X @" << this << " dtor" << std::endl;
         }
@@ -97,12 +99,55 @@ void AccesingRawPointer()
     std::cout << "Y.value: " << yHolder->value << " Y.value using raw pointer: " << yHolder.get()->value << std::endl;
 }
 
+void foo1(const boost::shared_ptr<Y>& argY)
+{
+    std::cout << __FUNCTION__ << " argY.use_count: " << argY.use_count() << std::endl;
+}
+
+void foo2(boost::shared_ptr<Y> argY)
+{
+    std::cout << __FUNCTION__ << " argY.use_count: " << argY.use_count() << std::endl;
+}
+
+void Arguments()
+{
+    boost::shared_ptr<Y> yHolder(new Y);
+    std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
+    foo1(yHolder);
+    std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
+    foo2(yHolder);
+    std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
+}
+
+void STLContainer(boost::shared_ptr<X> arg)
+{    
+    std::vector< boost::shared_ptr<X> > container;
+    container.push_back(arg);
+    container.push_back(boost::shared_ptr<X>(new X(true)));        
+}
+
+void AssignToSmartPtr(boost::shared_ptr<X>& arg)
+{
+    arg = boost::shared_ptr<X>(new X(true));
+}
+
 int main()
 {
     ReferenceCounting();
     AttachToMemory();
     StandardSharedPtrCreation();
     AccesingRawPointer();
+    Arguments();
+
+    boost::shared_ptr<X> x(new X(true));
+    STLContainer(x);
+
+
+    std::cout << x.get() << std::endl;
+    x.reset();
+    std::cout << x.get() << std::endl;
+    AssignToSmartPtr(x);
+    std::cout << x.get() << std::endl;
 
     char slask;
     std::cin >> slask;
