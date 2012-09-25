@@ -99,26 +99,31 @@ void AccesingRawPointer()
     std::cout << "Y.value: " << yHolder->value << " Y.value using raw pointer: " << yHolder.get()->value << std::endl;
 }
 
-void foo1(const boost::shared_ptr<Y>& argY)
+// Passing a shared_ptr as an argument is no different from passing any other object, 
+// works as expected both as reference and by value.
+void Arguments1(const boost::shared_ptr<Y>& argY)
 {
     std::cout << __FUNCTION__ << " argY.use_count: " << argY.use_count() << std::endl;
 }
-
-void foo2(boost::shared_ptr<Y> argY)
+void Arguments2(boost::shared_ptr<Y> argY)
 {
     std::cout << __FUNCTION__ << " argY.use_count: " << argY.use_count() << std::endl;
 }
-
 void Arguments()
 {
     boost::shared_ptr<Y> yHolder(new Y);
     std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
-    foo1(yHolder);
+    Arguments1(yHolder);
     std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
-    foo2(yHolder);
+    Arguments2(yHolder);
     std::cout << __FUNCTION__ << " yHolder.use_count: " << yHolder.use_count() << std::endl;
 }
 
+// When an STL container such as std::vector goes out of scope it will destruct all containing 
+// objects. By storing shared_ptrs one can therefore make sure that the dynamicaly allocated 
+// objects will be destructed as well if the container is the last reference holder to the object.
+// The object received to this function as an argument still has a reference outside of the 
+// vectors scope and will therefore not be destructed here.
 void STLContainer(boost::shared_ptr<X> arg)
 {    
     std::vector< boost::shared_ptr<X> > container;
@@ -126,9 +131,70 @@ void STLContainer(boost::shared_ptr<X> arg)
     container.push_back(boost::shared_ptr<X>(new X(true)));        
 }
 
-void AssignToSmartPtr(boost::shared_ptr<X>& arg)
+// It is valid to compare a shared_ptr with null. Reseting a shared_ptr
+// decreases the reference counter by one, hence it destructs the object if
+// it reaches zero. It is fully possibly to use a shared_ptr reference as 
+// output paramter from a function.
+void AssignToSmartPtrAssigner1(boost::shared_ptr<X>& arg)
 {
     arg = boost::shared_ptr<X>(new X(true));
+}
+void AssignToSmartPtrAssigner2(boost::shared_ptr<X>& arg)
+{
+    arg.reset();
+}
+void AssignToSmartPtr()
+{
+    boost::shared_ptr<X> x(new X(true));
+    std::cout << x.get() << std::endl;
+    x.reset();
+    std::cout << x.get() << std::endl;
+    AssignToSmartPtrAssigner1(x);
+    std::cout << x.get() << std::endl;
+    AssignToSmartPtrAssigner2(x);
+    std::cout << x.get() << std::endl;
+}
+
+void ExceptionThrower()
+{
+    throw std::exception();
+}
+void MemLeak()
+{
+    X* x = new X(true);
+    ExceptionThrower();
+    std::cout << "This is never printed since the exception will cause an early exit from this function" << std::endl;
+    delete x; //Will not be run, i.e memory leak
+}
+void NoMemLeak()
+{
+    boost::shared_ptr<X> x(new X(true));
+    ExceptionThrower();
+    std::cout << "This is never printed since the exception will cause an early exit from this function" << std::endl;
+    //No need to wrap 'x' in any try/catch since the shared_ptr will destruct x when leaving context.
+}
+void EarlyExits()
+{
+    try
+    {
+        MemLeak();
+    } catch (...) {}
+    try
+    {
+        NoMemLeak();
+    } catch (...) {}
+}
+
+// It is possible to use a custom delete function instead of calling 'delete'
+// on the raw object held by a smart_ptr when leaving scope.
+static void CustomDeleter(X* x)
+{
+    std::cout << "Going to delete X object @" << x << std::endl;
+    delete x;
+}
+void CustomDelete()
+{
+    boost::shared_ptr<X> xHolder(new X(true), ::CustomDeleter);
 }
 
 int main()
@@ -142,12 +208,9 @@ int main()
     boost::shared_ptr<X> x(new X(true));
     STLContainer(x);
 
-
-    std::cout << x.get() << std::endl;
-    x.reset();
-    std::cout << x.get() << std::endl;
-    AssignToSmartPtr(x);
-    std::cout << x.get() << std::endl;
+    AssignToSmartPtr();
+    EarlyExits();
+    CustomDelete();
 
     char slask;
     std::cin >> slask;
