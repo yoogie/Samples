@@ -197,6 +197,7 @@ void CustomDelete()
     boost::shared_ptr<X> xHolder(new X(true), ::CustomDeleter);
 }
 
+#if 0
 int main()
 {
     ReferenceCounting();
@@ -217,3 +218,4 @@ int main()
 
     return 0;
 }
+#endif
