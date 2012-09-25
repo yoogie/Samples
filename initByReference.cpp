@@ -36,9 +36,11 @@ void InCorrectReturnLocalObject()
     MainClass mObj2(IncorrectReturner()); //ERROR object allocated on stack, stack then poped.
 }
 
+#if 0
 void main()
 {
     CorrectInit();
     InCorrectDeReferenceNull();
     InCorrectReturnLocalObject();
 }
+#endif

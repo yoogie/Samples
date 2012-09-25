@@ -187,17 +187,17 @@ void EarlyExits()
 
 // It is possible to use a custom delete function instead of calling 'delete'
 // on the raw object held by a smart_ptr when leaving scope.
-static void CustomDeleter(X* x)
+void CustomDeleter(X* x)
 {
     std::cout << "Going to delete X object @" << x << std::endl;
     delete x;
 }
 void CustomDelete()
 {
-    boost::shared_ptr<X> xHolder(new X(true), ::CustomDeleter);
+    boost::shared_ptr<X> xHolder(new X(true), CustomDeleter);    
 }
 
-#if 0
+#if 1
 int main()
 {
     ReferenceCounting();
