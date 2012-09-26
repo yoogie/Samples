@@ -36,11 +36,28 @@ void InCorrectReturnLocalObject()
     MainClass mObj2(IncorrectReturner()); //ERROR object allocated on stack, stack then poped.
 }
 
-#if 0
+void DefaultCpyCtor()
+{
+    Foo f;
+    f.values[0] = 1;
+    MainClass mObj1(f);
+    MainClass mObj2(mObj1);
+
+    std::cout << "f.values[0] = " << f.values[0] << ", mObj1.m_foo.values[0] = " << mObj1.m_foo.values[0] << ", mObj2.m_foo.values[0] = " << mObj2.m_foo.values[0] << std::endl;
+    f.values[0] = 2;
+    std::cout << "f.values[0] = " << f.values[0] << ", mObj1.m_foo.values[0] = " << mObj1.m_foo.values[0] << ", mObj2.m_foo.values[0] = " << mObj2.m_foo.values[0] << std::endl;
+    mObj1.m_foo.values[0] = 3;
+    std::cout << "f.values[0] = " << f.values[0] << ", mObj1.m_foo.values[0] = " << mObj1.m_foo.values[0] << ", mObj2.m_foo.values[0] = " << mObj2.m_foo.values[0] << std::endl;
+    mObj2.m_foo.values[0] = 4;
+    std::cout << "f.values[0] = " << f.values[0] << ", mObj1.m_foo.values[0] = " << mObj1.m_foo.values[0] << ", mObj2.m_foo.values[0] = " << mObj2.m_foo.values[0] << std::endl;
+}
+
+#if 1
 void main()
 {
     CorrectInit();
     InCorrectDeReferenceNull();
     InCorrectReturnLocalObject();
+    DefaultCpyCtor();
 }
 #endif

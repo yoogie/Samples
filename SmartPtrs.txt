@@ -1,10 +1,10 @@
 Vad är en smart pointer, referens räknande mekanism.
 
-När kan man anv smart pekare, skapare != destruerare.
+När kan man anv smart pekare, skapare != destruerare, early exit.
 
-Olika smart pointers, boost::Shared_ptr/array, CAuto (TL), AutoPtr (STL), "egen RAII", kommer i C++11 (boost)
+Olika smart pointers, boost::Shared_ptr/array, CAutoPtr (ATL), AutoPtr (STL-deprecated?), CComPtr (COM-classic window programming), "egen RAII", kommer en ny impl i C++11 (boost).
 
-EX: Assign, skapa pekare utanför -> shared_ptr, funktions argument (ref/by-value), STL container data vs raw pointers (char[] vs vector).
+char[] vs vector.
 
 ----
 Init by ref:
@@ -14,18 +14,9 @@ Dela gemensamma resurser  isf skapa nya. Deterministiskt. Slipper pekar pekar ar
 Objekten ligger på stacken, om man vill.
 
 Fallgropar:
-Klassen behöver en "fungerande" copy ctro, assigment operator. Vilket iofs alltid behövs.
+Klassen behöver en "fungerande" copy ctor, assigment operator. Vilket iofs alltid behövs.
 
-Det går att göra fel, ex:
-EcClass* x = NULL;
-AnnanClass y(*x);
 
-class AnnanClass
-{ 
-public: 
-AnnanClass(EnClass&) : m_y(y)(}
-EnClass& m_y;
-};
 
 
 
