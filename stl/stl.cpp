@@ -55,7 +55,7 @@ void useMap()
 {
     map<int, Foo> dict;
     ///Insert 0 = nill
-    dict.insert( pair<int, Foo>(0, Foo("nill")));
+    dict.insert(pair<int, Foo>(0, Foo("nill")));
 
     ///Insert 1 = alfa
     Foo alfa("alfa");
@@ -105,7 +105,7 @@ void useMapInDepth()
         cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second.Name() << endl;
 
     ///Insert does not overwrite an existing key/value pair!
-    val = dict.insert( pair<int, Foo>(0, Foo("NILL")));
+    val = dict.insert(pair<int, Foo>(0, Foo("NILL")));
     if(val.second) 
         cout << "Did insert new element: " << val.first->first << "=" <<val.first->second.Name() << endl;
     else 
@@ -144,12 +144,11 @@ void insertOrOverwrite(MapType& map, const typename MapType::value_type& value)
     }
     //return val.first;
 }
-
 void mapInsertOrOverwrite()
 {
     map<int, Foo> dict;
     ///Insert 0 = nill
-    dict.insert( pair<int, Foo>(0, Foo("nill")));
+    dict.insert(pair<int, Foo>(0, Foo("nill")));
 
     ///Insert 1 = alfa
     Foo alfa("alfa");
@@ -175,6 +174,57 @@ void mapInsertOrOverwrite()
 
 void findInMultiMap()
 {
+    multimap<int, Foo> multiFoos;
+
+    ///insert some data
+    multiFoos.insert(pair<int, Foo>(0, Foo("nill")));
+    multiFoos.insert(pair<int, Foo>(0, Foo("Nill")));
+    multiFoos.insert(pair<int, Foo>(0, Foo("NILL")));
+    multiFoos.insert(pair<int, Foo>(1, Foo("alfa")));
+    multiFoos.insert(pair<int, Foo>(1, Foo("Alfa")));
+    multiFoos.insert(pair<int, Foo>(1, Foo("ALFA")));
+    multiFoos.insert(pair<int, Foo>(2, Foo("beta")));
+    multiFoos.insert(pair<int, Foo>(2, Foo("Beta")));
+    multiFoos.insert(pair<int, Foo>(2, Foo("BETA")));
+    multiFoos.insert(pair<int, Foo>(3, Foo("Trea")));
+    multiFoos.insert(pair<int, Foo>(4, Foo("Fyra")));
+
+    ///find key 1
+    multimap<int, Foo>::const_iterator foundKey = multiFoos.find(1);
+    cout << "Key " << foundKey->first << "=" << foundKey->second.Name() << endl;
+
+    ///use upper and lower bounds handling key 1
+    multimap<int, Foo>::const_iterator firstKey = multiFoos.lower_bound(1);
+    cout << "lower_bound -> Key " << firstKey->first << "=" << firstKey->second.Name() << endl;
+
+    multimap<int, Foo>::const_iterator lastKey = multiFoos.upper_bound(1);
+    cout << "upper_bound -> Key " << lastKey->first << "=" << lastKey->second.Name() << endl;
+
+    for(multimap<int, Foo>::const_iterator it = firstKey; it != lastKey; ++it)
+    {
+        cout << "Key " << it->first << "=" << it->second.Name() << endl;
+    }
+
+    ///use upper and lower bounds handling key 3
+    firstKey = multiFoos.lower_bound(3);
+    cout << "lower_bound -> Key " << firstKey->first << "=" << firstKey->second.Name() << endl;
+
+    lastKey = multiFoos.upper_bound(3);
+    cout << "upper_bound -> Key " << lastKey->first << "=" << lastKey->second.Name() << endl;
+
+    for(multimap<int, Foo>::const_iterator it = firstKey; it != lastKey; ++it)
+    {
+        cout << "Key " << it->first << "=" << it->second.Name() << endl;
+    }
+
+    ///use equal_range
+    pair<multimap<int, Foo>::const_iterator, multimap<int, Foo>::const_iterator> range = multiFoos.equal_range(1);
+    cout << "range.first: " << range.first->second.Name() << endl;
+    cout << "range.second: " << range.second->second.Name() << endl;
+    for(multimap<int, Foo>::const_iterator it = range.first; it != range.second; ++it)
+    {
+        cout << "Key " << it->first << "=" << it->second.Name() << endl;
+    }
 }
 
 void remove()
