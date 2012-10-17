@@ -1,15 +1,51 @@
 #include <map>
 #include <vector>
+#include <list>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <boost\shared_ptr.hpp>
+#include <windows.h>
+
 
 //#include <typeinfo>
 
 using namespace std;
 
+class Perf
+{
+public:
+    Perf() : m_whatToMeassure()
+    {
+        QueryPerformanceFrequency(&m_cpuFreq);
+        m_start.HighPart = m_start.LowPart = 0;
+        m_stop.HighPart = m_stop.LowPart = 0;
+    }
+    void Start(const string& whatToMeassure) 
+    {
+        m_whatToMeassure = whatToMeassure;
+        QueryPerformanceCounter(&m_start);
+    }
+    void Stop()
+    {
+        QueryPerformanceCounter(&m_stop);
+    }
+    void Print()
+    {        
+        double differance = static_cast<double>(m_stop.QuadPart - m_start.QuadPart);
+        cout << m_whatToMeassure << ": " << 1000 * (differance / m_cpuFreq.QuadPart) << " ms" << endl;
+    }
+
+private:
+    string m_whatToMeassure;
+    LARGE_INTEGER m_cpuFreq;
+    LARGE_INTEGER m_start;
+    LARGE_INTEGER m_stop;
+};
+
+
 static bool EnablePrintouts = false;
+
 class Foo
 {
 public:
@@ -280,6 +316,14 @@ void findInMultiMap()
     {
         cout << "Key " << it->first << "=" << it->second.Name() << endl;
     }
+
+    //OR more likely    
+    typedef multimap<int, Foo>::const_iterator mapIt;
+    for(pair<mapIt, mapIt> range = multiFoos.equal_range(1);
+        range.first != range.second; ++range.first)
+    {
+        cout << "Key " << range.first->first << "=" << range.first->second.Name() << endl;
+    }
 }
 
 void remove()
@@ -364,11 +408,49 @@ void freeMemory()
 
 void itterate()
 {
+    const int nrOfDataElements = 0xfffff;
+    vector<Foo> foos;
+    foos.reserve(nrOfDataElements);
+    //insert some data into the vector
+    Foo dummyData;
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+    {
+        foos.push_back(dummyData);
+    }
 
-}
+    Perf perf;
+    perf.Start("Iterator using post-operator");
+    for(vector<Foo>::iterator it = foos.begin(); it != foos.end(); it++);
+    perf.Stop();
+    perf.Print();
+    
+    perf.Start("Iterator using pre-operator");
+    for(vector<Foo>::iterator it = foos.begin(); it != foos.end(); ++it);
+    perf.Stop();
+    perf.Print();    
 
-void swap()
-{
+    perf.Start("Const iterator using pre-operator");
+    for(vector<Foo>::const_iterator it = foos.begin(); it != foos.end(); ++it);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Reverse iterator using pre-operator");
+    for(vector<Foo>::reverse_iterator rit = foos.rbegin(); rit != foos.rend(); ++rit);
+    perf.Stop();
+    perf.Print();
+    
+    perf.Start("Const reverse iterator using pre-operator");
+    for(vector<Foo>::const_reverse_iterator rit = foos.rbegin(); rit != foos.rend(); ++rit);
+    perf.Stop();
+    perf.Print();
+
+    Foo* farray = new Foo[nrOfDataElements];
+    perf.Start("Array pre-operator");    
+    for(int i = 0; i < nrOfDataElements ; i++) { Foo p = farray[i]; }
+    perf.Stop();
+    perf.Print();
+    delete[] farray;
+    
 }
 
 void benchmarkInsert()
@@ -390,14 +472,12 @@ int main()
     mapInsertOrOverwrite(); cout << endl;
     useSmartpointersInMaps(); cout << endl;
 
-    findInMultiMap();
+    findInMultiMap(); cout << endl;
 
-    remove();
-    freeMemory();
+    remove(); cout << endl;
+    freeMemory(); cout << endl;
 
-    itterate();
-
-    swap();
+    itterate(); cout << endl;
 
     benchmarkInsert();
     benchmarkLookup();
