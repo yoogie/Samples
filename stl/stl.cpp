@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <boost\shared_ptr.hpp>
 
 //#include <typeinfo>
 
@@ -113,7 +114,7 @@ void useMapInDepth()
     else 
         cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second.Name() << endl;
     cout << "return iterator points to Foo element@" << &(val.first->second) << endl;
-    cout << "map Foo alfa object@" << &dict[1] << endl; //Same as returned iterator
+    cout << "map Foo alfa object@" << &dict[0] << endl; //Same as returned iterator
 
 
     ///Overwrite 1=alfa with 1=NewAlfa existing value using operator[]
@@ -121,12 +122,12 @@ void useMapInDepth()
     cout << "Value for key: 1=" << dict[1].Name() << endl;
     cout << "map Foo alfa object@" << &dict[1] << endl; //Same as returned iterator
     cout << "OLD return iterator points to Foo element@" << &(val.first->second) << endl;
-    cout << "value of old iterator: " << val.first->first << "=" <<val.first->second.Name() << endl;
+    cout << "value of old iterator: " << val.first->first << "=" << val.first->second.Name() << endl;
 
     ///Insert 2=beta using operator[] without key previously in map
     dict[2] = Foo("beta");
     cout << "Value for key: 2=" << dict[2].Name() << endl;
-    
+
     EnablePrintouts = false;
 }
 
@@ -173,6 +174,58 @@ void mapInsertOrOverwrite()
     }
     ///So, 0=NILL, 1=NewAlfa, 2=beta...
 }
+
+void useSmartpointersInMaps()
+{
+    {
+        EnablePrintouts = true;
+        typedef boost::shared_ptr<Foo> spFoo;
+        map<int, spFoo > smartDict;
+
+        ///Insert 0 = nill
+        pair<map<int, spFoo>::iterator,bool> val = smartDict.insert( pair<int, spFoo>(0, spFoo(new Foo("nill"))));
+        if(val.second) 
+            cout << "Did insert new element: " << val.first->first << "=" << val.first->second->Name() << endl;
+        else 
+            cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second->Name() << endl;
+
+        ///Insert 1 = alfa (this is why so many copies...)
+        spFoo alfa(new Foo("alfa"));
+        pair<int, spFoo> pairAlfa(1, alfa);
+        val = smartDict.insert( pairAlfa ); //<- one copy to the stack since argument type "by-value"
+        cout << "return iterator points to Foo element@" << val.first->second.get() << endl;
+        cout << "alfa Foo object@" << alfa.get() << endl;
+        cout << "pairAlfas Foo object@" << pairAlfa.second.get() << endl;
+        cout << "map Foo alfa object@" << smartDict[1].get() << endl; //Same as returned iterator
+        if(val.second) 
+            cout << "Did insert new element: " << val.first->first << "=" <<val.first->second->Name() << endl;
+        else 
+            cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second->Name() << endl;
+
+        ///Insert does not overwrite an existing key/value pair!
+        val = smartDict.insert(pair<int, spFoo>(0, spFoo(new Foo("NILL"))));
+        if(val.second) 
+            cout << "Did insert new element: " << val.first->first << "=" <<val.first->second->Name() << endl;
+        else 
+            cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second->Name() << endl;
+        cout << "return iterator points to Foo element@" << val.first->second.get() << endl;
+        cout << "map Foo alfa object@" << smartDict[0].get() << endl; //Same as returned iterator
+
+
+        ///Overwrite 1=alfa with 1=NewAlfa existing value using operator[]
+        smartDict[1] = spFoo(new Foo("NewAlfa")); //Does not force dtor of old Foo("alfa") obj since smart_ptr still holds reference to it.
+        cout << "Value for key: 1=" << smartDict[1]->Name() << endl;
+        cout << "map Foo alfa object@" << smartDict[1].get() << endl; //Same as returned iterator
+        cout << "OLD return iterator points to Foo element@" << val.first->second.get() << endl;
+        cout << "value of old iterator: " << val.first->first << "=" << val.first->second->Name() << endl;
+
+        ///Insert 2=beta using operator[] without key previously in map
+        smartDict[2] = spFoo(new Foo("beta"));
+        cout << "Value for key: 2=" << smartDict[2]->Name() << endl;
+    } //force dtor of all obj in map and the Foo("alfa") on stack.
+    EnablePrintouts = false;
+}
+
 
 void findInMultiMap()
 {
@@ -305,6 +358,7 @@ void freeMemory()
 
 void itterate()
 {
+
 }
 
 void swap()
@@ -328,6 +382,7 @@ int main()
     useMap(); cout << endl;
     useMapInDepth(); cout << endl;
     mapInsertOrOverwrite(); cout << endl;
+    useSmartpointersInMaps(); cout << endl;
 
     findInMultiMap();
 
