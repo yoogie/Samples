@@ -339,6 +339,12 @@ void freeMemory()
     vector<int>(ints).swap(ints);
     cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
 
+    //same for clear
+    ints.clear();
+    cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+    vector<int>().swap(ints);
+    cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+
     /////////// "The price to pay" ///////////////
     vector<Foo> foos;
 
