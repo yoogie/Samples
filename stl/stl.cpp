@@ -1,6 +1,8 @@
 #include <map>
+#include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
 
 //#include <typeinfo>
 
@@ -229,10 +231,76 @@ void findInMultiMap()
 
 void remove()
 {
+    map<int, char> intToChar;
+    intToChar.insert(pair<int,char>(0,'a'));
+    intToChar.insert(pair<int,char>(1,'a'));
+    intToChar.insert(pair<int,char>(2,'b'));
+    intToChar.insert(pair<int,char>(3,'b'));
+    intToChar.insert(pair<int,char>(4,'c'));
+    intToChar.insert(pair<int,char>(5,'d'));
+
+    cout << "intToChar.size = " << intToChar.size() << endl;
+    for(map<int, char>::const_iterator it = intToChar.begin(); it != intToChar.end(); ++it)
+    {
+        cout << "intToChar[" << it->first << "]=" << it->second << endl;
+    }
+
+    ///remove all entries with value = b
+    for(map<int, char>::iterator it = intToChar.begin(); it != intToChar.end();)
+    {
+        if(it->second == 'b')
+        {
+            intToChar.erase(it++); //increase first, remove temporary return iterator
+        }
+        else
+        {
+            ++it; //dont create any temporary variable in vain.
+        }
+    }
+
+    cout << "intToChar.size = " << intToChar.size() << endl;
+    for(map<int, char>::const_iterator it = intToChar.begin(); it != intToChar.end(); ++it)
+    {
+        cout << "intToChar[" << it->first << "]=" << it->second << endl;
+    }    
 }
 
 void freeMemory()
 {
+    vector<int> ints;
+
+    //insert some data into the vector
+    for(int ii = 0; ii < 100; ++ii)
+    {
+        ints.push_back(ii);
+        cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+    }
+
+    ints.erase(ints.begin()+90, ints.end());
+    cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+
+    ints.erase(ints.begin()+80, ints.end());
+    cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+
+    //how to shrink
+    vector<int>(ints).swap(ints);
+    cout << "ints.size: " << ints.size() << " ints.capacity: " << ints.capacity() << endl;
+
+    /////////// "The price to pay" ///////////////
+    vector<Foo> foos;
+
+    //insert some data into the vector
+    for(int ii = 0; ii < 100; ++ii)
+    {
+        ostringstream os; 
+        os << ii;
+        foos.push_back(os.str());        
+    }
+
+    foos.erase(foos.begin()+10, foos.end());
+    EnablePrintouts = true;
+    vector<Foo>(foos).swap(foos);
+    EnablePrintouts = false;
 }
 
 void itterate()
@@ -257,9 +325,9 @@ void benchmarkDelete()
 
 int main()
 {
-    useMap();
-    useMapInDepth();
-    mapInsertOrOverwrite();
+    useMap(); cout << endl;
+    useMapInDepth(); cout << endl;
+    mapInsertOrOverwrite(); cout << endl;
 
     findInMultiMap();
 
