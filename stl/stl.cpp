@@ -1,6 +1,7 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <set>
 #include <string>
 #include <iostream>
 #include <sstream>
@@ -393,11 +394,10 @@ void freeMemory()
     vector<Foo> foos;
 
     //insert some data into the vector
+    Foo dummyData;
     for(int ii = 0; ii < 100; ++ii)
     {
-        ostringstream os; 
-        os << ii;
-        foos.push_back(os.str());        
+        foos.push_back(dummyData);        
     }
 
     foos.erase(foos.begin()+10, foos.end());
@@ -423,7 +423,7 @@ void itterate()
     for(vector<Foo>::iterator it = foos.begin(); it != foos.end(); it++);
     perf.Stop();
     perf.Print();
-    
+
     perf.Start("Iterator using pre-operator");
     for(vector<Foo>::iterator it = foos.begin(); it != foos.end(); ++it);
     perf.Stop();
@@ -438,7 +438,7 @@ void itterate()
     for(vector<Foo>::reverse_iterator rit = foos.rbegin(); rit != foos.rend(); ++rit);
     perf.Stop();
     perf.Print();
-    
+
     perf.Start("Const reverse iterator using pre-operator");
     for(vector<Foo>::const_reverse_iterator rit = foos.rbegin(); rit != foos.rend(); ++rit);
     perf.Stop();
@@ -450,19 +450,159 @@ void itterate()
     perf.Stop();
     perf.Print();
     delete[] farray;
-    
+
 }
 
 void benchmarkInsert()
 {
+    const int nrOfDataElements = 0xfffff;
+    Foo dummyData;
+
+    /* vector */
+    vector<int> ivec;
+    vector<Foo> fvec;
+
+    Perf perf;
+    perf.Start("Insert ints in vector");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        ivec.push_back(ii);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Insert foos in vector");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        fvec.push_back(dummyData);
+    perf.Stop();
+    perf.Print();
+
+    ivec.clear(); //no shrink!
+    fvec.clear(); //no shrink!
+    perf.Start("Insert ints in vector, again!");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        ivec.push_back(ii);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Insert foos in vector, again!");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        fvec.push_back(dummyData);
+    perf.Stop();
+    perf.Print();
+
+
+    /* list */
+    list<int> ilist;
+    list<Foo> flist;
+
+    perf.Start("Insert ints in list");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        ilist.push_back(ii);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Insert foos in list");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        flist.push_back(dummyData);
+    perf.Stop();
+    perf.Print();
+
+    ilist.clear(); //no shrink!
+    flist.clear(); //no shrink!
+    perf.Start("Insert ints in list, again!");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        ilist.push_back(ii);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Insert foos in list, again!");
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+        flist.push_back(dummyData);
+    perf.Stop();
+    perf.Print();
 }
 
 void benchmarkLookup()
 {
+    const int nrOfDataElements = 0xfffff;    
+    vector<int> ivec;
+    list<int> ilist;
+
+    for(int ii = 0; ii < nrOfDataElements; ii += 2) //0, 2, 4, 6, 8, 10, 12
+    {
+        ivec.push_back(ii);
+        ilist.push_back(ii);        
+    }
+
+    const int oddNumber = 3; //not in list or vector...
+    /* vector */
+    Perf perf;
+    perf.Start("Find ints in vector");    
+    std::find(ivec.begin(), ivec.end(), oddNumber);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Find ints in list");
+    std::find(ilist.begin(), ilist.end(), oddNumber);
+    perf.Stop();
+    perf.Print();
 }
 
 void benchmarkDelete()
 {
+    const int nrOfDataElements = 0xfffff;
+    vector<int> ivec;
+    list<int> ilist;
+
+    for(int ii = 0; ii < nrOfDataElements; ++ii)
+    {
+        ivec.push_back(ii);
+        ilist.push_back(ii);
+    }
+
+    /* vector */
+    Perf perf;
+    perf.Start("Delete from start in vector");
+    for(int ii = 0; ii < 1000; ++ii) 
+        ivec.erase(ivec.begin());
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Delete from end in vector");
+    for(int ii = 0; ii < 1000; ++ii) 
+        ivec.erase(ivec.end()-1);
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Delete from pos 1000 in vector");
+    for(int ii = 0; ii < 1000; ++ii) 
+        ivec.erase(ivec.begin()+1000);
+    perf.Stop();
+    perf.Print();
+
+    /* list */
+    perf.Start("Delete from start in list");
+    for(int ii = 0; ii < 1000; ++ii) 
+        ilist.erase(ilist.begin());
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Delete from end in list");
+    for(int ii = 0; ii < 1000; ++ii)
+        ilist.erase(--(ilist.end()));
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Delete from pos 1000 in list");
+    for(int ii = 0; ii < 1000; ++ii) 
+    {
+        list<int>::const_iterator it = ilist.begin();
+        for(int ii = 0; ii < 1000; ++ii) 
+            ++it;
+
+        ilist.erase(it);
+    }
+    perf.Stop();
+    perf.Print();
 }
 
 int main()
@@ -479,9 +619,9 @@ int main()
 
     itterate(); cout << endl;
 
-    benchmarkInsert();
-    benchmarkLookup();
-    benchmarkDelete();
+    benchmarkInsert(); cout << endl;
+    benchmarkLookup(); cout << endl;
+    benchmarkDelete(); cout << endl;
 
     return 1;
 }
