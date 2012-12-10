@@ -160,6 +160,12 @@ void basicInterface()
 void abstractSpecial()
 {
 	FooBasePrint print;
+    //FooBasePrint inherits the PrintableDefault class
+    //which has an abstract function toString. This means that the
+    //inheritor must implement that function. The FooBasePrint 
+    //however does this by calling the base class implementation
+    //that exists even though it is not accessible of the shelf 
+    //since the vtable address of the function is set to 0.
 	std::cout << print.toString();
 }
 
