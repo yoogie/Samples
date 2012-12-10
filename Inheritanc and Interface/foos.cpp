@@ -78,3 +78,27 @@ std::string FooBasePrint::toString()
 {
 	return PrintableDefault::toString();
 }
+
+//////////
+
+FaultyBaseClass::FaultyBaseClass()
+{
+    std::cout << "ctor for FaultyBaseClass @" << this << std::endl;
+}
+
+FaultyBaseClass::~FaultyBaseClass()
+{
+    std::cout << "dtor for FaultyBaseClass @" << this << std::endl;
+}
+
+///////////
+
+FaultyBaseClassInheritor::FaultyBaseClassInheritor()
+{
+    std::cout << "ctor for FaultyBaseClassInheritor @" << this << std::endl;
+}
+
+FaultyBaseClassInheritor::~FaultyBaseClassInheritor()
+{
+    std::cout << "dtor for FaultyBaseClassInheritor @" << this << std::endl;
+}

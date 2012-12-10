@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "printable.h"
 #include "foos.h"
 
@@ -7,6 +8,13 @@ class FooPimple : public Foo
 public:
 	FooPimple() {}
 	~FooPimple() {} //non virtual dtor since no one is going to inherit this class. Since impl in .cpp file this can be considered safe to know.
+    
+    std::string GetName() 
+    { 
+        std::ostringstream os;
+        os << "FooPimple + " << Foo::GetName();
+        return os.str();
+    }
 };
 
 void fooFunction(Foo* f)
@@ -37,6 +45,15 @@ void inheritance()
 	delete foo;
 }
 
+void shadowing()
+{
+    Foo foo;
+    std::cout << foo.GetName() << std::endl;
+
+    FooPimple foopimple;
+    std::cout << foopimple.GetName() << std::endl;
+}
+
 void virtualStuff()
 {
 	FooBaar fooBar;
@@ -52,6 +69,27 @@ void virtualStuff()
 	//baseclass pointer is used to access a inheritd type object.
 	std::cout << fooBar.NonVirtualGetName() << std::endl;
 	std::cout << foo->NonVirtualGetName() << std::endl;
+}
+
+void missingvdtor()
+{
+    //Constructing and destructing a FaultyBaseClass object, all works as intended,
+    FaultyBaseClass* fbase = new FaultyBaseClass();
+    delete fbase;
+    std::cout << std::endl;
+
+    //Constructing a FaultyBaseClassIneritor, as intended.
+    fbase = new FaultyBaseClassInheritor();
+    //...but when destructing using a baseclass reference, 
+    //the inherited dtor is never run. Ie class specific stuff
+    //such as deleting members etc is never done.
+    delete fbase;
+    std::cout << std::endl;
+
+    //It is still ok to construct and destruct the inherited class using
+    //a reference of the real type.
+    FaultyBaseClassInheritor* fbaseInheritor = new FaultyBaseClassInheritor();
+    delete fbaseInheritor;
 }
 
 void pollymophics()
@@ -107,7 +145,9 @@ void abstractSpecial()
 int main()
 {
 	inheritance(); std::cout << std::endl;
+    shadowing(); std::cout << std::endl;
 	virtualStuff(); std::cout << std::endl;
+    missingvdtor(); std::cout << std::endl;
 
 	pollymophics(); std::cout << std::endl;
 

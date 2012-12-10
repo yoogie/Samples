@@ -43,3 +43,17 @@ public:
 	//Implement PrintableDefault abstract function
 	virtual std::string toString();
 };
+
+class FaultyBaseClass
+{
+public:
+    FaultyBaseClass();
+    ~FaultyBaseClass(); //non virtual dtor
+};
+
+class FaultyBaseClassInheritor : public FaultyBaseClass
+{
+public:
+    FaultyBaseClassInheritor();
+    ~FaultyBaseClassInheritor();
+};
