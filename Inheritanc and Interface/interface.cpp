@@ -2,6 +2,7 @@
 #include <sstream>
 #include "printable.h"
 #include "foos.h"
+#include "polly.h"
 
 class FooPimple : public Foo
 {
@@ -94,6 +95,26 @@ void missingvdtor()
 
 void pollymophics()
 {
+    //Create a polymorphic object p.
+    Polly p;
+
+    //The toString function implemented forced due to the IPrintable interface
+    //prints a member inherited from the BaseStuff class mX.
+    std::cout << p.toString() << std::endl;
+
+    //The GetName function is inherited from the Foo base class.
+    std::cout << p.GetName() << std::endl;
+
+    
+    //Reference the sam obj using different base types returns different offset in memory
+    BaseStuff* bstuff = static_cast<BaseStuff*>(&p);
+    Foo* foo = static_cast<Foo*>(&p);
+    IPrintable* printable = static_cast<IPrintable*>(&p);
+    
+    std::cout << &p << std::endl;
+    std::cout << bstuff << std::endl;
+    std::cout << foo << std::endl;
+    std::cout << printable << std::endl;
 }
 
 

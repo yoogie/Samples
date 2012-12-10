@@ -1,3 +1,5 @@
+#ifndef FOO_H
+#define FOO_H
 #include "printable.h"
 
 class Foo
@@ -57,3 +59,5 @@ public:
     FaultyBaseClassInheritor();
     ~FaultyBaseClassInheritor();
 };
+
+#endif
