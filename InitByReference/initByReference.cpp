@@ -52,7 +52,6 @@ void DefaultCpyCtor()
     std::cout << "f.values[0] = " << f.values[0] << ", mObj1.m_foo.values[0] = " << mObj1.m_foo.values[0] << ", mObj2.m_foo.values[0] = " << mObj2.m_foo.values[0] << std::endl;
 }
 
-#if 1
 void main()
 {
     CorrectInit();
@@ -60,4 +59,3 @@ void main()
     InCorrectReturnLocalObject();
     DefaultCpyCtor();
 }
-#endif
