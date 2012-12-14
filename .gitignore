@@ -161,3 +161,14 @@ pip-log.txt
 
 # Mac crap
 .DS_Store
+
+#############
+# Sample project specific ignores.
+# We dont want VS solutions/projects etc
+# in the repo since the intention is to try 
+# to write platform independent examples
+#############
+
+*.o
+*.sln
+*.vcproj
