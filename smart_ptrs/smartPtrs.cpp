@@ -101,6 +101,9 @@ void AccesingRawPointer()
 
 // Passing a shared_ptr as an argument is no different from passing any other object, 
 // works as expected both as reference and by value.
+// NOTE: AS A REFERENE IS NOT THE WAY IT IS INTEDED TO BE USED, 
+// PASSING A boost::shared_ptr AS A REFERENCE MAKES THE REFERENCE COUNTING 
+// FAIL AND THE OBJECT COULD GO OUT OF SCOPE IN THE CALLING CONTEXT AND GET DESTRUCTED.
 void Arguments1(const boost::shared_ptr<Y>& argY)
 {
     std::cout << __FUNCTION__ << " argY.use_count: " << argY.use_count() << std::endl;
@@ -135,6 +138,7 @@ void STLContainer(boost::shared_ptr<X> arg)
 // decreases the reference counter by one, hence it destructs the object if
 // it reaches zero. It is fully possibly to use a shared_ptr reference as 
 // output paramter from a function.
+//NOTE: IT IS STILL NOT INTENDED TO PASS boost::shared_ptr OBJECTS AS REFERENCES
 void AssignToSmartPtrAssigner1(boost::shared_ptr<X>& arg)
 {
     arg = boost::shared_ptr<X>(new X(true));
@@ -142,6 +146,10 @@ void AssignToSmartPtrAssigner1(boost::shared_ptr<X>& arg)
 void AssignToSmartPtrAssigner2(boost::shared_ptr<X>& arg)
 {
     arg.reset();
+}
+boost::shared_ptr<X> AssignToSmartPtrAssigner3()
+{
+    return boost::shared_ptr<X>(new X(true));
 }
 void AssignToSmartPtr()
 {
@@ -152,6 +160,12 @@ void AssignToSmartPtr()
     AssignToSmartPtrAssigner1(x);
     std::cout << x.get() << std::endl;
     AssignToSmartPtrAssigner2(x);
+    std::cout << x.get() << std::endl;
+
+    x = AssignToSmartPtrAssigner3();
+    std::cout << x.get() << std::endl;
+    //Notice that the previously assigned object get destructed when not references any more.
+    x = AssignToSmartPtrAssigner3();
     std::cout << x.get() << std::endl;
 }
 
@@ -197,7 +211,6 @@ void CustomDelete()
     boost::shared_ptr<X> xHolder(new X(true), CustomDeleter);    
 }
 
-#if 0
 int main()
 {
     ReferenceCounting();
@@ -213,9 +226,5 @@ int main()
     EarlyExits();
     CustomDelete();
 
-    char slask;
-    std::cin >> slask;
-
     return 0;
 }
-#endif
