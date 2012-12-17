@@ -86,7 +86,7 @@ void contextUsingNamspace1()
 void contextUsingNamspace2Function()
 {
     using namespace std;
-    cout << "This function knows about the std namspace" << std::endl;
+    cout << "This function knows about the std namspace" << endl;
 }
 void contextUsingNamspace2()
 {
