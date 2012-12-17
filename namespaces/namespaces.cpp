@@ -12,6 +12,14 @@ namespace localNamespace
     {
         return x+1;
     }
+    
+    int functionCaller(const int x)
+    {
+        //Calls the localNamespace::function instead of the function 
+        //implemented outside of the namespaces since the 
+        //localNamespace::function is in the namespace closes to this.
+        return function(x);
+    }
 
     namespace innerNamespace
     {
@@ -19,9 +27,17 @@ namespace localNamespace
         {
             return x+2;
         }
+
+        int globalFunctionCaller(const int x)
+        {
+            return ::function(x);
+        }
     }
 }
-
+int functionCaller(const int x)
+{
+    return function(x);
+}
 void callSpecificFunction()
 {
     const int x = 0;
@@ -29,6 +45,15 @@ void callSpecificFunction()
     std::cout << "function = " << function(x) << std::endl;
     std::cout << "localNamespace::function = " << localNamespace::function(x) << std::endl;
     std::cout << "localNamespace::innerNamespace::function = " << localNamespace::innerNamespace::function(x) << std::endl;
+
+    //The function in the closest namespace will aways be the one 
+    //called if there are overloaded versions available.
+    std::cout << std::endl;
+    std::cout << "localNamespace::functionCaller = " << localNamespace::functionCaller(x) << std::endl;
+
+    //How to specify the global namespace
+    std::cout << std::endl;
+    std::cout << "localNamespace::innerNamespace::globalFunctionCaller = " << localNamespace::innerNamespace::globalFunctionCaller(x) << std::endl;
 }
 
 void localUsing()
