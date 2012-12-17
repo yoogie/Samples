@@ -1,6 +1,8 @@
 #include <iostream>
 #include <typeinfo>
+#include <map>
 #include "casts.h"
+#include "LockedPtr.h"
 
 using namespace std;
 
@@ -111,6 +113,29 @@ void incorrectCastUsage()
     cout << "d.value" << d.value << endl;
 }
 
+void constCastForThreadSafety()
+{
+    CRITICAL_SECTION lockForEntityMap;
+    InitializeCriticalSection(&lockForEntityMap);
+
+    typedef std::map<int, std::string> MapType;
+    volatile MapType entityMap;
+    
+    //Since entityMap is declared volatile it is not possible to access it from non-volatile context
+    //ie this would not compile
+    
+    //entityMap.insert(std::make_pair(1, "Hello"));
+
+    //How ever, by using the LockedPtr construction we know that any access to the entityMap will be 
+    //from within the critical section, ie. thread safe.
+    {
+    LockedPtr<MapType> lockedMap(lockForEntityMap, entityMap);
+    lockedMap->insert(std::make_pair(1, "Hello"));
+    }
+
+    //And as soon as the locked ptr leaves scope, the critical section is unlocked again.
+}
+
 int main()
 {
     cStyleCast();
@@ -122,5 +147,6 @@ int main()
     pollymophic();
     incorrectCastUsage();
 
+    constCastForThreadSafety();
     return 1;
 }
