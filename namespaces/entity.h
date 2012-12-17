@@ -31,6 +31,11 @@ namespace Example
 
 	namespace ItterationOne
 	{
+        //Haveing this class declared both in ItterationOne and 
+        //ItterationTwo namespaces makes no sence. Only done to 
+        //show that it is fully possible to have the same class
+        //or function declarations in different namspaces. That
+        //the namespace makes each declaration unique.
 		class EntityImpl : public Alfa::BaseEntity
 		{
 		public:
