@@ -1,112 +1,36 @@
 #include <map>
-#include <vector>
-#include <list>
-#include <set>
-#include <string>
-#include <iostream>
-#include <sstream>
+//#include <vector>
+//#include <list>
+//#include <set>
+//#include <string>
+//#include <iostream>
+//#include <sstream>
 #include <boost\shared_ptr.hpp>
-#include <windows.h>
+//#include <windows.h>
+#include "Foo.h"
 
 using namespace std;
 
-class Perf
-{
-public:
-    Perf() : m_whatToMeassure()
-    {
-        QueryPerformanceFrequency(&m_cpuFreq);
-        m_start.HighPart = m_start.LowPart = 0;
-        m_stop.HighPart = m_stop.LowPart = 0;
-    }
-    void Start(const string& whatToMeassure) 
-    {
-        m_whatToMeassure = whatToMeassure;
-        QueryPerformanceCounter(&m_start);
-    }
-    void Stop()
-    {
-        QueryPerformanceCounter(&m_stop);
-    }
-    void Print()
-    {        
-        double differance = static_cast<double>(m_stop.QuadPart - m_start.QuadPart);
-        cout << m_whatToMeassure << ": " << 1000 * (differance / m_cpuFreq.QuadPart) << " ms" << endl;
-    }
-
-private:
-    string m_whatToMeassure;
-    LARGE_INTEGER m_cpuFreq;
-    LARGE_INTEGER m_start;
-    LARGE_INTEGER m_stop;
-};
-
-
-static bool EnablePrintouts = false;
-
-class Foo
-{
-public:
-    Foo() : m_name("UnNamed") 
-    {
-        if (EnablePrintouts)
-            cout << "ctor@" << this << " : " << m_name << endl; 
-    }
-
-    Foo(const string& name) : m_name(name) 
-    {
-        if (EnablePrintouts)
-            cout << "ctor@" << this << " : " << m_name << endl; 
-    }
-
-    Foo(const Foo& obj) : m_name(obj.Name())
-    {
-        if (EnablePrintouts)
-            cout << "cpy ctor@" << this << " from " << &obj << " : " << m_name << endl;
-    }
-
-    ~Foo() 
-    {
-        if (EnablePrintouts)
-            cout << "dtor@" << this << " : " << m_name << endl; 
-    }
-
-    Foo& operator=(const Foo& obj)
-    {
-        if(this != &obj)
-        {
-            if (EnablePrintouts)
-                cout << "assignement operator called for element @" << this << "(" << m_name << ") assigning from " << &obj << "(" << obj.Name() << ")" << endl;
-            m_name = obj.Name();
-        }
-        return *this;
-    }
-
-    string Name() const { return m_name; }
-
-private:    
-    string m_name;
-};
-
 void useMap()
 {
+	const bool enablePrintouts = false;
     map<int, Foo> dict;
     ///Insert 0 = nill
-    dict.insert(pair<int, Foo>(0, Foo("nill")));
+    dict.insert(pair<int, Foo>(0, Foo("nill", enablePrintouts)));
 
     ///Insert 1 = alfa
-    Foo alfa("alfa");
+    Foo alfa("alfa", enablePrintouts);
     pair<int, Foo> pairAlfa(1, alfa);
     dict.insert( pairAlfa );
 
     ///Try to insert an existing key
-    dict.insert( pair<int, Foo>(0, Foo("NILL")));    
+    dict.insert( pair<int, Foo>(0, Foo("NILL", enablePrintouts)));
 
     ///Overwrite 1=alfa with 1=NewAlfa
-    dict[1] = Foo("NewAlfa");
+    dict[1] = Foo("NewAlfa", enablePrintouts);
 
     ///Insert 2=beta using operator[]
-    dict[2] = Foo("beta");
+    dict[2] = Foo("beta", enablePrintouts);
 
     ///what does the map contain?
     for(map<int, Foo>::const_iterator it = dict.begin(); it != dict.end(); ++it)
@@ -118,18 +42,18 @@ void useMap()
 
 void useMapInDepth()
 {
-    EnablePrintouts = true;
+    const bool enablePrintouts = true;
     map<int, Foo> dict;
 
     ///Insert 0 = nill
-    pair<map<int, Foo>::iterator,bool> val = dict.insert( pair<int, Foo>(0, Foo("nill")));
+    pair<map<int, Foo>::iterator,bool> val = dict.insert( pair<int, Foo>(0, Foo("nill", enablePrintouts)));
     if(val.second) 
         cout << "Did insert new element: " << val.first->first << "=" << val.first->second.Name() << endl;
     else 
         cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second.Name() << endl;
 
     ///Insert 1 = alfa (this is why so many copies...)
-    Foo alfa("alfa");
+    Foo alfa("alfa", enablePrintouts);
     pair<int, Foo> pairAlfa(1, alfa);
     val = dict.insert( pairAlfa ); //<- one copy to the stack since argument type "by-value"
     cout << "return iterator points to Foo element@" << &(val.first->second) << endl;
@@ -142,7 +66,7 @@ void useMapInDepth()
         cout << "Did not insert new element, key already exists: " << val.first->first << "=" << val.first->second.Name() << endl;
 
     ///Insert does not overwrite an existing key/value pair!
-    val = dict.insert(pair<int, Foo>(0, Foo("NILL")));
+    val = dict.insert(pair<int, Foo>(0, Foo("NILL", enablePrintouts)));
     if(val.second) 
         cout << "Did insert new element: " << val.first->first << "=" <<val.first->second.Name() << endl;
     else 
@@ -152,17 +76,15 @@ void useMapInDepth()
 
 
     ///Overwrite 1=alfa with 1=NewAlfa existing value using operator[]
-    dict[1] = Foo("NewAlfa");
+    dict[1] = Foo("NewAlfa", enablePrintouts);
     cout << "Value for key: 1=" << dict[1].Name() << endl;
     cout << "map Foo alfa object@" << &dict[1] << endl; //Same as returned iterator
     cout << "OLD return iterator points to Foo element@" << &(val.first->second) << endl;
     cout << "value of old iterator: " << val.first->first << "=" << val.first->second.Name() << endl;
 
     ///Insert 2=beta using operator[] without key previously in map
-    dict[2] = Foo("beta");
+    dict[2] = Foo("beta", enablePrintouts);
     cout << "Value for key: 2=" << dict[2].Name() << endl;
-
-    EnablePrintouts = false;
 }
 
 template<typename MapType>
