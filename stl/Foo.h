@@ -3,7 +3,7 @@
 //#include <list>
 //#include <set>
 #include <string>
-//#include <iostream>
+#include <iostream>
 //#include <sstream>
 //#include <boost\shared_ptr.hpp>
 //#include <windows.h>
@@ -11,8 +11,10 @@
 class Foo
 {
 public:
-    Foo() : m_name("UnNamed"), mEnablePrintouts(false)
+    Foo() : m_name("UnNamed"), mEnablePrintouts(true)
     {
+        if (mEnablePrintouts)
+            std::cout << "ctor@" << this << " : " << m_name << std::endl; 
     }
 
 	Foo(const std::string& name, bool enablePrintouts) : m_name(name), mEnablePrintouts(enablePrintouts) 
