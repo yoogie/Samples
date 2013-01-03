@@ -6,6 +6,7 @@
 #include "mapUsage.h"
 #include "benchmark_basic.h"
 #include "VectorUsage.h"
+#include "SortedData.h"
 
 int main()
 {
@@ -29,6 +30,11 @@ int main()
     benchmarkInsert(); std::cout << std::endl;
     benchmarkLookup(); std::cout << std::endl;
     benchmarkDelete(); std::cout << std::endl;
+
+    //Sorted data
+    useASet(); std::cout << std::endl;
+    sortedVector(); std::cout << std::endl;
+    compareSetAndSortedVector(); std::cout << std::endl;
 
     return 1;
 }
