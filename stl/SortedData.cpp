@@ -3,6 +3,11 @@
 #include <vector>
 #include <algorithm>
 
+#include <stdlib.h>
+#include <time.h>
+
+#include "Perf.h"
+
 class Sortable
 {
 public:
@@ -177,6 +182,166 @@ void sortedVector()
     }
 }
 
+void benchmarkInsertsOnce()
+{
+    using std::sort;
+    using std::unique;
+
+    const int nrOfElements = 60000;
+    const int range = nrOfElements;
+ 
+    //Init random seed
+    srand(static_cast<unsigned int>(time(NULL)));
+
+    //Create some random in data
+    std::vector<int> inData;
+    inData.reserve(nrOfElements);
+    while(inData.size() < nrOfElements)
+    {
+        inData.push_back(rand() % range);
+
+    }
+
+    std::set<int> ints;    
+    Perf perf;
+    perf.Start("Insert random values in a set");
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        ints.insert(*it);
+    }
+    perf.Stop();
+    perf.Print();
+    std::cout << "The set contains " << ints.size() << " elements and uses " << sizeof(ints) << "b" << std::endl << std::endl;
+
+    std::vector<int> intv;
+    perf.Start("Insert random values in a vector, sort and unique");
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        intv.push_back(*it);
+    }
+    sort(intv.begin(), intv.end());
+    std::vector<int>::iterator newEndIt = unique(intv.begin(), intv.end());
+    intv.resize(newEndIt - intv.begin());
+    perf.Stop();
+    perf.Print();
+    std::cout << "The vector contains " << intv.size() << " elements and uses " << sizeof(intv) << "b" << std::endl << std::endl;
+}
+
+void benchmarkInsertsOneByOne()
+{
+    using std::sort;
+    using std::unique;
+
+    const int nrOfElements = 60000;
+    const int range = nrOfElements;
+ 
+    //Init random seed
+    srand(static_cast<unsigned int>(time(NULL)));
+
+    //Create some random in data
+    std::vector<int> inData;
+    inData.reserve(nrOfElements);
+    while(inData.size() < nrOfElements)
+    {
+        inData.push_back(rand() % range);
+
+    }
+
+    std::set<int> ints;    
+    Perf perf;
+    perf.Start("Insert random values in a set");
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        ints.insert(*it);
+    }
+    perf.Stop();
+    perf.Print();
+    std::cout << "The set contains " << ints.size() << " elements and uses " << sizeof(ints) << "b" << std::endl << std::endl;
+
+    std::vector<int> intv;
+    perf.Start("Insert random values in a vector, sort and unique, one-by-one");
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        intv.push_back(*it);
+        sort(intv.begin(), intv.end());
+        std::vector<int>::iterator newEndIt = unique(intv.begin(), intv.end());
+        intv.resize(newEndIt - intv.begin());
+    }
+    perf.Stop();
+    perf.Print();
+    std::cout << "The vector contains " << intv.size() << " elements and uses " << sizeof(intv) << "b" << std::endl << std::endl;
+}
+
+void benchmarkDeletes()
+{
+    using std::sort;
+    using std::unique;
+
+    const int nrOfElements = 60000;
+    const int range = nrOfElements;
+ 
+    //Init random seed
+    srand(static_cast<unsigned int>(time(NULL)));
+
+    //Create some random in data
+    std::vector<int> inData;
+    inData.reserve(nrOfElements);
+    while(inData.size() < nrOfElements)
+    {
+        inData.push_back(rand() % range);
+
+    }
+
+    //Populate the set
+    std::set<int> ints;    
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        ints.insert(*it);
+    }
+
+    //Populate the vector
+    std::vector<int> intv;
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        intv.push_back(*it);
+    }
+    sort(intv.begin(), intv.end());
+    std::vector<int>::iterator newEndIt = unique(intv.begin(), intv.end());
+    intv.resize(newEndIt - intv.begin());
+
+    //Benchmark set deletions
+    Perf perf;
+    perf.Start("Delete 50% of set data elements");
+    for(std::vector<int>::const_iterator it = inData.begin()+(inData.size()/2); it != inData.begin(); --it)
+    {
+        ints.erase(*it);
+    }
+    perf.Stop();
+    perf.Print();
+
+    //Benchmark vector deletions, no swap etc i.e still using all memory
+    perf.Start("Delete 50% of vector data elements");
+    for(std::vector<int>::const_iterator it = inData.begin()+(inData.size()/2); it != inData.begin(); --it)
+    {
+        remove(intv.begin(), intv.end(), *it);
+    }
+    perf.Stop();
+    perf.Print();
+}
+
+void benchmarkFinds()
+{
+}
+
+void benchmarkScenario1()
+{
+}
+
 void compareSetAndSortedVector()
 {
+    benchmarkInsertsOnce();
+    benchmarkInsertsOneByOne();
+    benchmarkDeletes();
+    benchmarkFinds();
+    benchmarkScenario1();
 }
