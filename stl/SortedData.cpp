@@ -331,6 +331,66 @@ void benchmarkDeletes()
 
 void benchmarkFinds()
 {
+    using std::sort;
+    using std::unique;
+
+    const int nrOfElements = 60000;
+    const int range = nrOfElements;
+ 
+    //Init random seed
+    srand(static_cast<unsigned int>(time(NULL)));
+
+    //Create some random in data
+    std::vector<int> inData;
+    inData.reserve(nrOfElements);
+    while(inData.size() < nrOfElements)
+    {
+        inData.push_back(rand() % range);
+
+    }
+
+    //Populate the set
+    std::set<int> ints;    
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        ints.insert(*it);
+    }
+
+    //Populate the vector
+    std::vector<int> intv;
+    for(std::vector<int>::const_iterator it = inData.begin(); it != inData.end(); ++it)
+    {
+        intv.push_back(*it);
+    }
+    sort(intv.begin(), intv.end());
+    std::vector<int>::iterator newEndIt = unique(intv.begin(), intv.end());
+    intv.resize(newEndIt - intv.begin());
+
+    //Benchmark lookups from set vs sorted vector
+    Perf perf;
+    perf.Start("Find in set");
+    for(int ii = range; ii > 0; --ii)
+    {
+        std::set<int>::iterator val = ints.find(ii);
+    }
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Find in vector");
+    for(int ii = range; ii > 0; --ii)
+    {
+        std::vector<int>::iterator val = std::find(intv.begin(), intv.end(), ii);
+    }
+    perf.Stop();
+    perf.Print();
+
+    perf.Start("Binary_search in vector"); //Only says if value exists or not, does not give any reference to it
+    for(int ii = range; ii > 0; --ii)
+    {
+        bool exists = std::binary_search(intv.begin(), intv.end(), ii);
+    }
+    perf.Stop();
+    perf.Print();
 }
 
 void benchmarkScenario1()
