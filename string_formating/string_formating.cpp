@@ -57,11 +57,21 @@ void use_vsprintf_simple()
 
 void use_boostFormat_simple()
 {
-    //TODO Make proper examples for boost::format
+    //xx ?
     boost::format fmt("Hello world\n", locale::classic());
     cout << fmt.str() << endl;
-}
 
+    //re order printf style parameters
+    cout << boost::format("%2% world, %1%\n") % "hello!" % "Hello";
+
+    //Various paramter types
+    std::string str("value");
+    int x = 3;
+    cout << boost::format("1:%1%, 2:%2%, 3:%3%\n") % str % str.c_str() % x;
+
+    ////Missing paramter will throw an exception
+    ////cout << boost::format("%1%\n");
+}
 
 void use_printf_complex()
 {
