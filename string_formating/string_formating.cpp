@@ -4,7 +4,6 @@
 using namespace std;
 #define UseEndl 1
 
-
 void use_printf_simple()
 {
     printf("Hello world\n");
